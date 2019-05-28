@@ -1,0 +1,48 @@
+---
+title: 'The utility of spatial model-based estimators of unobserved bycatch: future or folly?'
+author: Brian C. Stock^1^, Eric J. Ward^2^, James T. Thorson^3^, Jason E. Jannot^3^, Brice X. Semmens^1^
+date: ''
+output:
+  pdf_document:
+    keep_tex: true
+    fig_caption: yes
+    includes:
+      in_header: options.sty
+csl: ices-journal-of-marine-science.csl
+bibliography: bycatch_simulation.bib
+---
+
+\pagebreak
+
+\begin{landscape}
+
+\begin{table}[]
+\caption{Fisheries for which the ratio estimator is used to calculate total bycatch from partial observer coverage. This list is far from comprehensive and included simply to illustrate broad use of the ratio estimator across fisheries regions, management organizations, and gear types.}
+\label{ratio-ex}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{FAO Region} & \textbf{\begin{tabular}[c]{@{}l@{}}Country/\\ Organization\end{tabular}} & \textbf{Fisheries} & \textbf{Bycatch Species} & \textbf{\begin{tabular}[c]{@{}l@{}}Observer\\ Coverage\end{tabular}} & \textbf{Reference} \\
+\midrule
+Global & FAO & All & Total bycatch (all species combined) &  & \begin{tabular}[c]{@{}l@{}}Alverson et al. 1994,\\ Kelleher 2005\end{tabular} \\
+Mediterranean Sea & \begin{tabular}[c]{@{}l@{}}Spain, Italy,\\ Greece, Turkey\end{tabular} & \begin{tabular}[c]{@{}l@{}}Trawl, trap, purse seine,\\ longline, dredge, gillnet\end{tabular} & Total bycatch (all species combined) &  & Tsagarakis et al. 2014 \\
+\begin{tabular}[c]{@{}l@{}}Mediterranean Sea\\ Atlantic, Northeast\end{tabular} & European Union & All & All &  & ICES 2007 \\
+Atlantic, Northeast & Scotland & Seine, trawl & Haddock, cod, whiting & 0.1-0.2\% & Stratoudakis et al. 1999 \\
+Atlantic, Northeast & Ireland & Gillnet (albacore tuna) & \begin{tabular}[c]{@{}l@{}}25 species of fish, seabirds,\\ turtles, and cetaceans\end{tabular} & 2.2-47.8\% & Rogan and Mackey 2007 \\
+Atlantic, Northwest & USA & \begin{tabular}[c]{@{}l@{}}Longline, trawl, seine,\\ pot/trap, handline, \\ dredge, gillnet\end{tabular} & \begin{tabular}[c]{@{}l@{}}60 species of groundfish, invertebrates,\\ pelagic fish, elasmobranchs, seabirds,\\ marine mammals, and turtles\end{tabular} & 3\% & \begin{tabular}[c]{@{}l@{}}Wigley et al. 2007,\\ GARFO 2016\end{tabular} \\
+Atlantic, Northwest & Canada & Longline, trawl, gillnet & \begin{tabular}[c]{@{}l@{}}Porbeagle, shortfin mako shark,\\ blue shark\end{tabular} & 5\% & Compana et al. 2011 \\
+Atlantic, Western & USA & Shrimp trawl & Marine mammals & 0.8\% & Soldevilla et al. 2016 \\
+Atlantic, Southeast & South Africa & Groundfish trawl & \begin{tabular}[c]{@{}l@{}}19 species of finfish, elasmobranchs,\\ and cephalopods\end{tabular} & 0.3\% & Walmsley et al. 2007 \\
+Atlantic, all & \begin{tabular}[c]{@{}l@{}}Spain, France,\\ ICCAT\end{tabular} & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of other finfish, sharks,\\ marine mammals, and turtles\end{tabular} & 1.5-32.7\% & \begin{tabular}[c]{@{}l@{}}Amande et al. 2010b,\\ Hall and Roman 2013\end{tabular} \\
+Indian, all & Taiwan & Longline & \begin{tabular}[c]{@{}l@{}}40 species of tuna, fish, sharks,\\seabirds, marine mammals, and turtles\end{tabular} & 2.2-20.8\% & Huang and Liu 2010 \\
+Indian, all & IOTC & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of tuna, other finfish,\\ sharks, marine mammals, and turtles\end{tabular} & 1.4-8.1\% & Hall and Roman 2013 \\
+Indian, Western & Kuwait & Shrimp trawl & 23 species of finfish and elasmobranchs & 35-54\% & Ye et al. 2000 \\
+Pacific, Southwest & \begin{tabular}[c]{@{}l@{}}New Zealand,\\ Australia\end{tabular} & Deepwater trawl & \begin{tabular}[c]{@{}l@{}}48 species of finfish, elasmobranchs,\\ and invertebrates\end{tabular} & 10.5-22.1\% & Anderson and Clark 2003 \\
+Pacific, Eastern & IATTC & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of tuna, other finfish,\\ sharks, marine mammals, and turtles\end{tabular} & \textgreater 99\% & Hall and Roman 2013 \\
+Pacific, Western & WCPFC & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of tuna, other finfish, \\ sharks, marine mammals, and turtles\end{tabular} & 1.5-11\% & Hall and Roman 2013 \\
+Pacific, Eastern & USA & Groundfish trawl & \begin{tabular}[c]{@{}l@{}}Dozens of species of finfish, elasmobranchs,\\ invertebrates, marine mammals, and seabirds\end{tabular} & \textgreater 99\% & Somers et al. 2018 \\
+Pacific, Eastern & USA & Sablefish longline & \begin{tabular}[c]{@{}l@{}}Dozens of species of finfish, elasmobranchs,\\ invertebrates, marine mammals,  and seabirds\end{tabular} & 7-41\% & Somers et al. 2018 \\
+Pacific, Eastern & USA & Groundfish pot & \begin{tabular}[c]{@{}l@{}}Dozens of species of finfish, elasmobranchs,\\ invertebrates, marine mammals,  and seabirds\end{tabular} & 2-12\% & Somers et al. 2018
+\end{tabular}
+\end{table}
+
+\end{landscape}

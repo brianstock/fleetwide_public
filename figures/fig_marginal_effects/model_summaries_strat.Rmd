@@ -1,0 +1,234 @@
+---
+title: 'RF and GAM model summaries'
+author: Brian C. Stock^1^, Eric J. Ward^2^, James T. Thorson^2^, Jason E. Jannot^2^, Brice X. Semmens^1^
+date: "September 4, 2018"
+output: pdf_document
+classoption: landscape
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H', echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE)
+knitr::opts_knit$set(root.dir = '../../' )
+library(knitr)
+library(broom)
+library(tidyverse)
+library(ggsidekick)
+library(reshape2)
+library(viridis)
+library(date)
+library(gridExtra)
+library(pander)
+library(kableExtra)
+library(png)
+library(forcats)
+library(randomForest)
+library(mgcv)
+library(forestFloor)
+library(visreg)
+```
+
+## Random forest and GAM models
+
+For each (of 15) species we fit the models described below. `fac(x)` is shorthand for treating covariate $x$ as a factor. All random forest models were fit with `ntree=500` and default `mtry`. All GAMs were fit with `family=Tweedie(p=tweedie_p[i]), method="REML"`. All data are at the haul-level.
+
+  - $Y$: response, bycatch/discards (in kg)
+  - $year$: year (5 levels: 2011-2015)
+  - *depth_interval*: depth of haul (3 levels: < 125, 126-250, > 250 fathoms)
+  - $season$: season (2 levels: summer, winter)
+  - $bimonth$: bimonthly period (6 levels: Jan-Feb, Mar-Apr, ..., Nov-Dec)
+  - $logret$: log(retained target species catch, in kg)
+  - $lat$: degrees latitude
+  - $long$: degrees longitude
+  
+For random forest models, we report the percent variance explained (pseudo-$R^2$ = $\frac{1 - mse}{Var(y)}$). Random forest covariate effect plots were created using the `forestFloor` R package and custom code.
+
+For GAM models, we report the output of `mgcv::summary.gam`, including percent deviance explained. GAM covariate effect plots were created using the `visreg` R package.
+
+####  RF~strat~
+
+Designed to *mimic the stratified ratio estimator* by treating `year`, `season`, and `depth_interval` as factors. `bimonth` is included as linear and quadratic terms to avoid confounding with `fac(season)`.
+
+  > randomForest($Y$ ~ fac(year) + fac(season) + fac(depth_interval) + bimonth + I(bimonth^2) + logret + lat + long + I(lat^2) + I(long^2))
+  
+####  GAM~strat~
+
+Designed to *mimic the stratified ratio estimator* by treating `year`, `season`, and `depth_interval` as factors. `bimonth` is included as linear and quadratic terms to avoid confounding with `fac(season)`.
+
+  > gam($Y$ ~ fac(year) + fac(season) + fac(depth_interval) + bimonth + I(bimonth^2) + logret + s(lat, long, k=50))
+
+```{r echo = FALSE, results = "asis", fig.width=12, fig.height=2.5, message=FALSE, warnings=FALSE}
+source("/home/brian/Dropbox/bycatch/manuscript/figures/ff_plot_fns.R")
+SPP = readRDS("wcgop data/spp.rds")
+spp <- tolower(SPP)
+
+template <- "\n\n\\pagebreak\n
+
+## Species %i: %s
+\n
+" # dont't forget the newline
+
+for(i in 1:length(spp)){
+# for(i in 1:1){
+# i=1
+  cat(sprintf(template, i, SPP[i]))
+  dat = readRDS("wcgop data/filtered_data_byhaul.rds")
+  names(dat) = tolower(names(dat))
+  dat$year = as.factor(dat$year)
+  dat$depth_interval = factor(dat$depth_interval,levels(dat$depth_interval)[c(2,3,1)])
+  dat$response <- dat[,spp[i]]
+  
+  mod.rf1 = readRDS(paste0("revision/results/alldat_",spp[i],"_RF.rds"))
+  mod.gam1 = readRDS(paste0("revision/results/alldat_",spp[i],"_GAM.rds"))
+  # mod.rf2 = readRDS(paste0("revision/results/alldat_",spp[i],"_RF_facbimonth.rds"))
+  # mod.gam2 = readRDS(paste0("revision/results/alldat_",spp[i],"_GAM_facbimonth.rds"))
+  # mod.rf3 = readRDS(paste0("revision/results/alldat_",spp[i],"_RF_nofac.rds"))
+  # mod.gam3 = readRDS(paste0("revision/results/alldat_",spp[i],"_GAM_nofac.rds"))
+
+  cat("
+#### RF~strat~
+
+  \n\n")
+
+  tmp <- capture.output(print(mod.rf1))
+  cat(tmp[8:9], sep = "\n")  
+  cat("\n\n")
+  
+  covar <- c("year", "season", "bimonth", "depth_interval", "logret", "avg_lat", "avg_long")
+  ff = forestFloor(rf.fit = mod.rf1, X = dat[,covar])
+  g <- list(
+    ff_plot_factor(dat, mod.rf1, ff, x="year",covar),
+    ff_plot_factor(dat, mod.rf1, ff, x="season",covar),
+    ff_plot_cont(dat, mod.rf1, ff, thecov="bimonth",covar),
+    ff_plot_factor(dat, mod.rf1, ff, x="depth_interval",covar),
+    ff_plot_cont(dat, mod.rf1, ff, thecov="logret",covar),
+    visreg2d(mod.rf1, "avg_long", "avg_lat", trans=log, plot.type='gg') + coord_fixed() + xlab("UTM Easting") + ylab("UTM Northing") + theme_classic() + theme(legend.title=element_blank()))
+  print(marrangeGrob(g, nrow=1, ncol=6, top=''))
+  cat('\n\n')
+  
+  cat("
+#### GAM~strat~
+
+  \n\n")
+  
+  tmp <- capture.output(print(summary(mod.gam1)))
+  cat(paste(" ", tmp[(length(tmp)-1):length(tmp)]), sep = "\n")  
+  cat('\n\n') 
+
+  g <- list(
+    visreg(mod.gam1, "year",partial=F, rug=F, gg=T) + theme_classic(),
+    visreg(mod.gam1, "season",partial=F, rug=F, gg=T) + theme_classic(),
+    visreg(mod.gam1, "bimonth",partial=F, rug=F, gg=T) + theme_classic(),
+    visreg(mod.gam1, "depth_interval",partial=F, rug=F,gg=T) + theme_classic(),
+    visreg(mod.gam1, "logret",partial=F, rug=F, gg=T) + theme_classic(),
+    visreg2d(mod.gam1, "avg_long", "avg_lat", plot.type='gg') + coord_fixed() + xlab("UTM Easting") + ylab("UTM Northing") + theme_classic() + theme(legend.title=element_blank()))
+  print(marrangeGrob(g, nrow=1, ncol=6, top=''))
+  cat('\n\n')
+  
+  tmp <- broom::tidy(mod.gam1, parametric=FALSE) %>% mutate(signif = gtools::stars.pval(p.value)) %>% dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3))))
+  print(knitr::kable(tmp, "latex", booktabs=TRUE) %>% kable_styling(position="left",latex_options = c("striped")))
+  cat('\n\n')  
+  tmp <- broom::tidy(mod.gam1, parametric=TRUE) %>% mutate(signif = gtools::stars.pval(p.value)) %>% dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3))))
+  print(knitr::kable(tmp, "latex", booktabs=TRUE) %>% kable_styling(position="left",latex_options = c("striped")))
+  cat('\n\n') 
+#   
+#   cat("
+# #### RF~strat2~
+# 
+#   \n\n")
+# 
+#   tmp <- capture.output(print(mod.rf2))
+#   cat(tmp[8:9], sep = "\n")  
+#   cat('\n\n')
+#   
+#   dat$bimonth <- factor(dat$bimonth)
+#   covar <- c("year", "bimonth", "depth_interval", "logret", "avg_lat", "avg_long")
+#   ff = forestFloor(rf.fit = mod.rf2, X = dat[,covar])
+#   g <- list(
+#     ff_plot_factor(dat, mod.rf2, ff, x="year",covar),
+#     ff_plot_factor(dat, mod.rf2, ff, x="bimonth",covar),
+#     ff_plot_factor(dat, mod.rf2, ff, x="depth_interval",covar),
+#     ff_plot_cont(dat, mod.rf2, ff, thecov="logret",covar),
+#     visreg2d(mod.rf2, "avg_long", "avg_lat", trans=log, plot.type='gg') + coord_fixed() + xlab("UTM Easting") + ylab("UTM Northing") + theme_classic() + theme(legend.title=element_blank()))
+#   print(marrangeGrob(g, nrow=1, ncol=5, top=''))
+#   cat('\n\n')
+#   
+#   cat("
+# #### GAM~strat2~
+# 
+#   \n\n")
+#   
+#   tmp <- capture.output(print(summary(mod.gam2)))
+#   cat(paste(" ", tmp[(length(tmp)-1):length(tmp)]), sep = "\n")  
+#   cat('\n\n') 
+# 
+#   g <- list(
+#     visreg(mod.gam2, "year",partial=F, rug=F, gg=T) + theme_classic(),
+#     visreg(mod.gam2, "bimonth",partial=F, rug=F, gg=T) + theme_classic(),
+#     visreg(mod.gam2, "depth_interval",partial=F, rug=F,gg=T) + theme_classic(),
+#     visreg(mod.gam2, "logret",partial=F, rug=F, gg=T) + theme_classic(),
+#     visreg2d(mod.gam2, "avg_long", "avg_lat", plot.type='gg') + coord_fixed() + xlab("UTM Easting") + ylab("UTM Northing") + theme_classic() + theme(legend.title=element_blank()))
+#   print(marrangeGrob(g, nrow=1, ncol=5, top=''))
+#   cat('\n\n')
+#   
+#   tmp <- broom::tidy(mod.gam2, parametric=FALSE) %>% mutate(signif = gtools::stars.pval(p.value)) %>% dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3))))
+#   print(knitr::kable(tmp, "latex", booktabs=TRUE) %>% kable_styling(position="left",latex_options = c("striped")))
+#   cat('\n\n') 
+#   tmp <- broom::tidy(mod.gam2, parametric=TRUE) %>% mutate(signif = gtools::stars.pval(p.value)) %>% dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3))))
+#   print(knitr::kable(tmp, "latex", booktabs=TRUE) %>% kable_styling(position="left",latex_options = c("striped")))
+#   cat('\n\n')    
+#   
+#   cat("
+# #### RF~nonlinear~
+# 
+#   \n\n")
+# 
+#   tmp <- capture.output(print(mod.rf3))
+#   cat(tmp[8:9], sep = "\n")  
+#   cat('\n\n')
+#   
+#   dat = readRDS("wcgop data/filtered_data_byhaul_v2.rds")
+#   names(dat) = tolower(names(dat))
+#   dat$year <- as.integer(as.numeric(as.character(dat$year)))
+#   dat$response <- dat[,spp[i]]
+#   covar <- c("year", "julian_day", "time", "depth", "gear", "logret", "avg_lat", "avg_long")
+#   ff = forestFloor(rf.fit = mod.rf3, X = dat[,covar])
+#   g <- list(
+#     ff_plot_cont(dat, mod.rf3, ff, thecov="year",covar),
+#     ff_plot_cont(dat, mod.rf3, ff, thecov="julian_day",covar),
+#     ff_plot_cont(dat, mod.rf3, ff, thecov="time",covar),    
+#     ff_plot_cont(dat, mod.rf3, ff, thecov="depth",covar),
+#     ff_plot_factor(dat, mod.rf3, ff, x="gear",covar),    
+#     ff_plot_cont(dat, mod.rf3, ff, thecov="logret",covar),
+#     visreg2d(mod.rf3, "avg_long", "avg_lat", trans=log, plot.type='gg') + coord_fixed() + xlab("UTM Easting") + ylab("UTM Northing") + theme_classic() + theme(legend.title=element_blank()))
+#   print(marrangeGrob(g, nrow=1, ncol=7, top=''))
+#   cat('\n\n')
+#   
+#   cat("
+# #### GAM~nonlinear~
+# 
+#   \n\n")
+#   
+#   tmp <- capture.output(print(summary(mod.gam3)))
+#   cat(paste(" ", tmp[(length(tmp)-1):length(tmp)]), sep = "\n")  
+#   cat('\n\n') 
+# 
+#   g <- list(
+#     visreg(mod.gam3, "year",partial=F, rug=F, gg=T) + theme_classic(),
+#     visreg(mod.gam3, "julian_day",partial=F, rug=F, gg=T) + theme_classic(),
+#     visreg(mod.gam3, "time",partial=F, rug=F, gg=T) + theme_classic(),    
+#     visreg(mod.gam3, "depth",partial=F, rug=F,gg=T) + theme_classic(),
+#     visreg(mod.gam3, "gear",partial=F, rug=F,gg=T) + theme_classic(),    
+#     visreg(mod.gam3, "logret",partial=F, rug=F, gg=T) + theme_classic(),
+#     visreg2d(mod.gam3, "avg_long", "avg_lat", plot.type='gg') + coord_fixed() + xlab("UTM Easting") + ylab("UTM Northing") + theme_classic() + theme(legend.title=element_blank()))
+#   print(marrangeGrob(g, nrow=1, ncol=7, top=''))
+#   cat('\n\n')
+#   
+#   tmp <- broom::tidy(mod.gam3, parametric=FALSE) %>% mutate(signif = gtools::stars.pval(p.value)) %>% dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3))))
+#   print(knitr::kable(tmp, "latex", booktabs=TRUE) %>% kable_styling(position="left",latex_options = c("striped")))
+#   cat('\n\n') 
+#   tmp <- broom::tidy(mod.gam3, parametric=TRUE) %>% mutate(signif = gtools::stars.pval(p.value)) %>% dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3))))
+#   print(knitr::kable(tmp, "latex", booktabs=TRUE) %>% kable_styling(position="left",latex_options = c("striped")))
+#   cat('\n\n')
+}
+```
+

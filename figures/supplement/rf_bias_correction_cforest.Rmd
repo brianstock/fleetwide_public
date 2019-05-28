@@ -1,0 +1,76 @@
+---
+title: "RF bias correction"
+author: "Brian Stock"
+date: "December 20, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(randomForest)
+library(ggplot2)
+library(ggsidekick)
+library(knitr)
+library(dplyr)
+library(glmmfields)
+```
+
+Eric, I think what you have differs from the method described by Xu in a couple ways... 
+
+1. You're using the test data to do the bias correction, which seems like cheating to me... I think the test data should only be used after the algorithm is finished on the train data. Xu uses the out-of-bag prediction of the train data.
+
+2. In the iterative case, my interpretation of Xu is that you use the residual of the previous iteration as the response to fit + predict. 
+
+3. Xu uses the sum of the iterative corrections, not the average prediction. And only 1/7 of the datasets Xu tested improved with more than one iteration.
+
+## Simulate data (Eric's code)
+```{r fig1, fig.cap = "Histogram of simulated data", echo=TRUE, warning=FALSE, message=FALSE}
+set.seed(123)
+s = sim_glmmfields(n_knots = 40, n_draws = 1, gp_theta = 0.5, gp_sigma = 0.2,
+  mvt=FALSE, n_data_points = 200, sd_obs = 1, obs_error = "gamma")
+
+dat = s$dat
+dat$set = sample(c("test", "train"), size = nrow(dat), replace = TRUE)
+
+ggplot(s$dat, aes(y)) + geom_histogram(col="dodgerblue4", fill
+ ="dodgerblue4") + theme_sleek() + ylab("Count")
+```
+
+
+## RF bias correction from Xu (2013) pages 40-43
+
+```{r}
+# 1 iteration = default RF,
+# 2 iterations = 1 bias correction
+rf_correct_bcs = function(formula, combined_data, iter=2) {
+  test_data = filter(combined_data, set=="test")
+  n_test = nrow(test_data)
+  train_data = filter(combined_data, set=="train")
+  n_train = nrow(train_data)
+  train_data$y_i <- train_data$y
+  
+  train_oob_pred = matrix(NA, nrow=n_train, ncol=iter+1)
+  train_oob_pred[,1] <- train_data$y
+  test_pred = test_error = as.data.frame(matrix(NA, nrow=n_test, ncol=iter))
+  colnames(test_pred) <- paste0("b_",1:iter)
+  colnames(test_error) <- paste0("b_",1:iter)
+  for(i in 1:iter) {
+    rf = cforest(as.formula(formula), data = train_data, 
+      control = cforest_control(ntree=1000, mtry=4))
+    train_data$y_i <- train_oob_pred[,i+1] <- as.vector(predict(rf)) - train_oob_pred[,i]
+    test_pred[,i] <- as.vector(predict(rf, newdata=test_data))
+    test_error[,i] <- apply(as.matrix(test_pred[,1:i]),1,sum) - test_data$y
+  }
+  return(list(test_pred=test_pred, test_error=test_error))
+}
+
+formula = "y_i ~ lon + lat + I(lon^2) + I(lat^2)"
+iter = 50
+res <- rf_correct_bcs(formula, combined_data=dat, iter=iter)
+bias <- apply(res$test_error,2,mean) # average error (bias) by iteration
+MSE <- apply(abs(res$test_error),2,mean) # MSE by iteration
+plot(1:iter, bias/bias[1], type='o', xlab="Iteration", ylab="Normalized  error (test data)", ylim=c(0,2))
+lines(1:iter, MSE/MSE[1], type='o', lty=2, pch=19)
+legend('topright', c("Bias", "MSE"), lty = 1:2, pch = c(1, 19), box.lwd =NA)
+abline(c(1,0), col="red")
+```

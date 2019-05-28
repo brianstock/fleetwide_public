@@ -1,0 +1,15 @@
+Big Skate 0.129
+Black Skate 0.152
+Brown Cat Shark 0.451
+California Slickhead 0.092
+Dungeness Crab 0.294
+Grenadier 0.288
+Octopus Unid 0.139
+Pacific Hake 0.567
+Pacific Halibut 0.31
+Sandpaper Skate 0.506
+Rosethorn Rockfish 0.042
+Slender Sole 0.264
+Spiny Dogfish Shark 0.433
+Spotted Ratfish 0.427
+Tanneri Tanner Crab 0.399

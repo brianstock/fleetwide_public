@@ -1,0 +1,100 @@
+---
+title: "RF bias correction"
+author: "Brian Stock"
+date: "December 20, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(randomForest)
+library(ggplot2)
+library(ggsidekick)
+library(knitr)
+library(dplyr)
+library(glmmfields)
+```
+
+## Simulate data (Eric's code)
+```{r fig1, fig.cap = "Histogram of simulated data", echo=TRUE, warning=FALSE, message=FALSE}
+set.seed(123)
+s = sim_glmmfields(n_knots = 40, n_draws = 1, gp_theta = 0.5, gp_sigma = 0.2,
+  mvt=FALSE, n_data_points = 200, sd_obs = 1, obs_error = "gamma")
+
+dat = s$dat
+dat$set = sample(c("test", "train"), size = nrow(dat), replace = TRUE)
+
+ggplot(s$dat, aes(y)) + geom_histogram(col="dodgerblue4", fill
+ ="dodgerblue4") + theme_sleek() + ylab("Count")
+```
+
+
+## RF bias correction from Hooker et al. (2018). 
+
+This represents the original implementation, where 'nfolds' > 1, and there's not really a single test/train split used.  
+
+```{r}
+source("figures/supplement/xboot_hooker.r")
+
+X = cbind(dat$lat, dat$lon, dat$lat^2, dat$lon^2)
+Y = dat$y
+
+iter = 100
+df = data.frame("rmse_orig"=rep(0,iter), 
+  "rmse_cor"=rep(0,iter), 
+  "bias_orig"=rep(0,iter), 
+  "bias_cor"=rep(0,iter))
+
+for(i in 1:iter) {
+print(i)
+#oos = sample(1:nrow(dat), size=10, replace=F)  
+xbt = xbootbias(X,Y,subsize=100,nfold=10,ntree.boot=1000)
+#xbt = xbootbias(X,Y,subsize=100,nfold=1, folds=oos,ntree.boot=1000)
+
+#df$rmse_orig[i] = sqrt(mean((dat$y[oos]-xbt$oos_pred)^2))
+#df$rmse_cor[i] = sqrt(mean((dat$y[oos]-xbt$oos_corrected)^2))
+#df$bias_orig[i] = mean(dat$y[oos]-xbt$oos_pred)
+#df$bias_cor[i] = mean(dat$y[oos]-xbt$oos_corrected)
+
+df$rmse_orig[i] = sqrt(mean((dat$y-xbt$oos_pred)^2))
+df$rmse_cor[i] = sqrt(mean((dat$y-xbt$oos_corrected)^2))
+df$bias_orig[i] = mean(dat$y-xbt$oos_pred)
+df$bias_cor[i] = mean(dat$y-xbt$oos_corrected)
+}
+
+```
+
+## Modified RF bias correction from Hooker et al. (2018). 
+
+And this is the second implementation, modified to have a single fold (test/train split).
+
+```{r}
+
+X = cbind(dat$lat, dat$lon, dat$lat^2, dat$lon^2)
+Y = dat$y
+
+iter = 100
+df = data.frame("rmse_orig"=rep(0,iter), 
+  "rmse_cor"=rep(0,iter), 
+  "bias_orig"=rep(0,iter), 
+  "bias_cor"=rep(0,iter))
+
+for(i in 1:iter) {
+print(i)
+oos = sample(1:nrow(dat), size=10, replace=F)  
+#xbt = xbootbias(X,Y,subsize=100,nfold=10,ntree.boot=1000)
+xbt = xbootbias(X,Y,subsize=100,nfold=1, folds=oos,ntree.boot=1000)
+
+df$rmse_orig[i] = sqrt(mean((dat$y[oos]-xbt$oos_pred)^2))
+df$rmse_cor[i] = sqrt(mean((dat$y[oos]-xbt$oos_corrected)^2))
+df$bias_orig[i] = mean(dat$y[oos]-xbt$oos_pred)
+df$bias_cor[i] = mean(dat$y[oos]-xbt$oos_corrected)
+
+#df$rmse_orig[i] = sqrt(mean((dat$y-xbt$oos_pred)^2))
+#df$rmse_cor[i] = sqrt(mean((dat$y-xbt$oos_corrected)^2))
+#df$bias_orig[i] = mean(dat$y-xbt$oos_pred)
+#df$bias_cor[i] = mean(dat$y-xbt$oos_corrected)
+}
+
+```
+

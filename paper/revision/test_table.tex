@@ -1,0 +1,161 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={The utility of spatial model-based estimators of unobserved bycatch: future or folly?},
+            pdfauthor={Brian C. Stock1, Eric J. Ward2, James T. Thorson3, Jason E. Jannot3, Brice X. Semmens1},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{The utility of spatial model-based estimators of unobserved bycatch:
+future or folly?}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Brian C. Stock\textsuperscript{1}, Eric J. Ward\textsuperscript{2},
+James T. Thorson\textsuperscript{3}, Jason E. Jannot\textsuperscript{3},
+Brice X. Semmens\textsuperscript{1}}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+    \date{}
+    \predate{}\postdate{}
+  
+\usepackage{setspace}
+%\singlespacing
+%\onehalfspacing
+\doublespacing
+\usepackage{lineno}
+\linenumbers
+\usepackage{pdflscape}
+\newcommand{\blandscape}{\begin{landscape}}
+\newcommand{\elandscape}{\end{landscape}}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\begin{document}
+\maketitle
+
+\pagebreak
+
+\begin{landscape}
+
+\begin{table}[]
+\caption{Fisheries for which the ratio estimator is used to calculate total bycatch from partial observer coverage. This list is far from comprehensive and included simply to illustrate broad use of the ratio estimator across fisheries regions, management organizations, and gear types.}
+\label{ratio-ex}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{FAO Region} & \textbf{\begin{tabular}[c]{@{}l@{}}Country/\\ Organization\end{tabular}} & \textbf{Fisheries} & \textbf{Bycatch Species} & \textbf{\begin{tabular}[c]{@{}l@{}}Observer\\ Coverage\end{tabular}} & \textbf{Reference} \\
+\midrule
+Global & FAO & All & Total bycatch (all species combined) &  & \begin{tabular}[c]{@{}l@{}}Alverson et al. 1994,\\ Kelleher 2005\end{tabular} \\
+Mediterranean Sea & \begin{tabular}[c]{@{}l@{}}Spain, Italy,\\ Greece, Turkey\end{tabular} & \begin{tabular}[c]{@{}l@{}}Trawl, trap, purse seine,\\ longline, dredge, gillnet\end{tabular} & Total bycatch (all species combined) &  & Tsagarakis et al. 2014 \\
+\begin{tabular}[c]{@{}l@{}}Mediterranean Sea\\ Atlantic, Northeast\end{tabular} & European Union & All & All &  & ICES 2007 \\
+Atlantic, Northeast & Scotland & Seine, trawl & Haddock, cod, whiting & 0.1-0.2\% & Stratoudakis et al. 1999 \\
+Atlantic, Northeast & Ireland & Gillnet (albacore tuna) & \begin{tabular}[c]{@{}l@{}}25 species of fish, seabirds,\\ turtles, and cetaceans\end{tabular} & 2.2-47.8\% & Rogan and Mackey 2007 \\
+Atlantic, Northwest & USA & \begin{tabular}[c]{@{}l@{}}Longline, trawl, seine,\\ pot/trap, handline, \\ dredge, gillnet\end{tabular} & \begin{tabular}[c]{@{}l@{}}60 species of groundfish, invertebrates,\\ pelagic fish, elasmobranchs, seabirds,\\ marine mammals, and turtles\end{tabular} & 3\% & \begin{tabular}[c]{@{}l@{}}Wigley et al. 2007,\\ GARFO 2016\end{tabular} \\
+Atlantic, Northwest & Canada & Longline, trawl, gillnet & \begin{tabular}[c]{@{}l@{}}Porbeagle, shortfin mako shark,\\ blue shark\end{tabular} & 5\% & Compana et al. 2011 \\
+Atlantic, Western & USA & Shrimp trawl & Marine mammals & 0.8\% & Soldevilla et al. 2016 \\
+Atlantic, Southeast & South Africa & Groundfish trawl & \begin{tabular}[c]{@{}l@{}}19 species of finfish, elasmobranchs,\\ and cephalopods\end{tabular} & 0.3\% & Walmsley et al. 2007 \\
+Atlantic, all & \begin{tabular}[c]{@{}l@{}}Spain, France,\\ ICCAT\end{tabular} & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of other finfish, sharks,\\ marine mammals, and turtles\end{tabular} & 1.5-32.7\% & \begin{tabular}[c]{@{}l@{}}Amande et al. 2010b,\\ Hall and Roman 2013\end{tabular} \\
+Indian, all & Taiwan & Longline & \begin{tabular}[c]{@{}l@{}}40 species of tuna, fish, sharks,\\seabirds, marine mammals, and turtles\end{tabular} & 2.2-20.8\% & Huang and Liu 2010 \\
+Indian, all & IOTC & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of tuna, other finfish,\\ sharks, marine mammals, and turtles\end{tabular} & 1.4-8.1\% & Hall and Roman 2013 \\
+Indian, Western & Kuwait & Shrimp trawl & 23 species of finfish and elasmobranchs & 35-54\% & Ye et al. 2000 \\
+Pacific, Southwest & \begin{tabular}[c]{@{}l@{}}New Zealand,\\ Australia\end{tabular} & Deepwater trawl & \begin{tabular}[c]{@{}l@{}}48 species of finfish, elasmobranchs,\\ and invertebrates\end{tabular} & 10.5-22.1\% & Anderson and Clark 2003 \\
+Pacific, Eastern & IATTC & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of tuna, other finfish,\\ sharks, marine mammals, and turtles\end{tabular} & \textgreater 99\% & Hall and Roman 2013 \\
+Pacific, Western & WCPFC & Tuna purse seine & \begin{tabular}[c]{@{}l@{}}Dozens of species of tuna, other finfish, \\ sharks, marine mammals, and turtles\end{tabular} & 1.5-11\% & Hall and Roman 2013 \\
+Pacific, Eastern & USA & Groundfish trawl & \begin{tabular}[c]{@{}l@{}}Dozens of species of finfish, elasmobranchs,\\ invertebrates, marine mammals, and seabirds\end{tabular} & \textgreater 99\% & Somers et al. 2018 \\
+Pacific, Eastern & USA & Sablefish longline & \begin{tabular}[c]{@{}l@{}}Dozens of species of finfish, elasmobranchs,\\ invertebrates, marine mammals,  and seabirds\end{tabular} & 7-41\% & Somers et al. 2018 \\
+Pacific, Eastern & USA & Groundfish pot & \begin{tabular}[c]{@{}l@{}}Dozens of species of finfish, elasmobranchs,\\ invertebrates, marine mammals,  and seabirds\end{tabular} & 2-12\% & Somers et al. 2018
+\end{tabular}
+\end{table}
+
+\end{landscape}
+
+\pagebreak
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{\extracolsep{4pt}}llccccccc}
+\toprule   
+{} & {} & {Observations} & \multicolumn{3}{c}{Median}  & \multicolumn{3}{c}{SD}\\
+ \cmidrule{3-3} 
+ \cmidrule{4-6} 
+ \cmidrule{7-9} 
+ Year & Group & N & V1 & V2 & V3 & V1 & V2 & V3 \\ 
+\midrule
+2012  & Control & 2 & 0.052 & 0.294 & 0.115 & 0.304 & 0.619 & 0.611 \\ 
+  & Treat & 2 & 0.511 & 0.083 & 0.123 & 0.573 & 0.541 & 0.734 \\ 
+2016  & Control & 3 & 0.320 & 0.344 & 0.382 & 0.382 & 0.494 & 0.477 \\ 
+  & Treat & 3 & 0.378 & 0.296 & 0.123 & 0.386 & 0.668 & 0.732 \\ 
+\bottomrule
+\end{tabular}
+\caption{Mean by Year and Group} 
+\end{table}
+
+
+\end{document}
